@@ -2,6 +2,17 @@ import React, { useState, useCallback } from 'react';
 import { useStore } from '../store';
 import { tumUlkeler } from '../data';
 
+const indir = (blob: Blob, dosyaAdi: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = dosyaAdi;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
 const VeriExport: React.FC = () => {
     const { seciliDinler, aramaMetni } = useStore();
     const [acik, setAcik] = useState(false);
@@ -46,17 +57,6 @@ const VeriExport: React.FC = () => {
         setExportEdildi('JSON');
         setTimeout(() => setExportEdildi(null), 2000);
     }, [filtrelenmisVeri]);
-
-    const indir = (blob: Blob, dosyaAdi: string) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = dosyaAdi;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
 
     const linkPaylas = useCallback(() => {
         const params = new URLSearchParams();

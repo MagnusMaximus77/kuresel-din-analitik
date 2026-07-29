@@ -26,19 +26,17 @@ const HaritaGrafigi: React.FC = () => {
     const svgRef = useRef<SVGSVGElement>(null);
     const gRef = useRef<SVGGElement>(null);
     const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
-    const zoomScaleRef = useRef(1);
+    const [currentZoom, setCurrentZoom] = useState(1);
 
     const [topoData, setTopoData] = useState<TopoFeature[]>([]);
     const [boyutlar, setBoyutlar] = useState({ genislik: 960, yukseklik: 500 });
     const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const [, setLabelGuncel] = useState(0); // Label re-render tetikleyici
     const [yukleniyor, setYukleniyor] = useState(true);
 
     const { seciliDinler, seciliMezhepler, ulkeSec, seciliUlke, ipucuGoster, ipucuGizle, aramaMetni, haritaHatasi, haritaHatasiAyarla } = useStore();
 
     // TopoJSON veri yükleme — hata yönetimi ile
     useEffect(() => {
-        setYukleniyor(true);
         haritaHatasiAyarla(null);
 
         fetch('/countries-110m.json')
@@ -95,12 +93,12 @@ const HaritaGrafigi: React.FC = () => {
             .translateExtent([[0, 0], [boyutlar.genislik, boyutlar.yukseklik]])
             .on('zoom', (event) => {
                 g.attr('transform', event.transform);
-                zoomScaleRef.current = event.transform.k;
+                const scale = event.transform.k;
 
                 // Label güncellemesini debounce et (performans)
                 clearTimeout(labelTimeout);
                 labelTimeout = setTimeout(() => {
-                    setLabelGuncel(prev => prev + 1);
+                    setCurrentZoom(scale);
                 }, 100);
             });
 
@@ -170,8 +168,6 @@ const HaritaGrafigi: React.FC = () => {
                 .duration(1000)
                 .call(zoomRef.current.transform, newTransform);
 
-            zoomScaleRef.current = targetScale;
-            setTimeout(() => setLabelGuncel(prev => prev + 1), 1050);
         }
     }, [seciliUlke, topoData, boyutlar.genislik, boyutlar.yukseklik, projeksiyon]);
 
@@ -193,8 +189,7 @@ const HaritaGrafigi: React.FC = () => {
                 .transition()
                 .duration(500)
                 .call(zoomRef.current.transform, zoomIdentity);
-            zoomScaleRef.current = 1;
-            setTimeout(() => setLabelGuncel(prev => prev + 1), 550);
+            setCurrentZoom(1);
         }
     }, []);
 
@@ -339,8 +334,6 @@ const HaritaGrafigi: React.FC = () => {
             </div>
         );
     }
-
-    const currentZoom = zoomScaleRef.current;
 
     return (
         <div className="harita-svg-wrapper">

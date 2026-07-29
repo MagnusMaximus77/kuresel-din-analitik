@@ -72,7 +72,7 @@ const UlkeDetay: React.FC = () => {
                             <LabelList 
                                 dataKey="yuzde" 
                                 position="right" 
-                                formatter={(v: number) => `%${v.toFixed(1)}`} 
+                                formatter={(v) => typeof v === 'number' ? `%${v.toFixed(1)}` : ''}
                                 fill="#f8fafc" 
                                 fontSize={12} 
                                 fontWeight={700} 
@@ -117,7 +117,7 @@ const UlkeDetay: React.FC = () => {
 const SAYFA_BOYUTU = 25;
 
 const UlkeTablosu: React.FC = () => {
-    const { seciliDinler, seciliMezhepler, siralama, siralamaAyarla, aramaMetni, ulkeSec, seciliUlke } = useStore();
+    const { seciliDinler, siralama, siralamaAyarla, aramaMetni, ulkeSec, seciliUlke } = useStore();
     const [sayfa, setSayfa] = useState(0);
     // Varsa varsayılan olarak tabloyu açık başlat
     const [tabloAcik, setTabloAcik] = useState(true);
@@ -155,7 +155,7 @@ const UlkeTablosu: React.FC = () => {
         });
 
         return sonuc;
-    }, [seciliDinler, seciliMezhepler, siralama, aramaMetni]);
+    }, [seciliDinler, siralama, aramaMetni]);
 
     // Sayfa sıfırlama (filtre değiştiğinde)
     const toplamSayfa = Math.ceil(filtrelenmisUlkeler.length / SAYFA_BOYUTU);
